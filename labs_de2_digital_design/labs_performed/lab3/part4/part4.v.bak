@@ -1,0 +1,27 @@
+module part4(input D,
+				 input Clk,
+				 output Qa,
+				 output Qb,
+				 output Qc);
+	
+endmodule 
+
+module Dlat(input D,
+				 input Clk,
+				 output Q);
+	wire S_g,R_g,Clk_g,Qa,Qb;
+	assign S_g = D&Clk;
+	assign R_g = ~D&Clk;
+	assign Qa = ~(R_g|Qb);
+	assign Qb = ~(S_g|Qa);
+	assign Q = Qa;
+endmodule
+
+module Dflipflop(input D,
+				 input Clk,
+				 output Q);
+	wire Qs;
+	assign Q = Qs;
+	Dlat Master(D,~Clk,Qm);
+	Dlat Slave(Qm,Clk,Qs);
+endmodule

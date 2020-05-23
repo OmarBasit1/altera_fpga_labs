@@ -1,0 +1,5 @@
+module part3()
+
+	reg [7:0] memory array [31:0];
+
+endmodule

@@ -1,0 +1,18 @@
+module part1()
+	
+endmodule
+
+module Tff(input T,
+			  input Clk,
+			  output reg Q);
+
+	always@(T or posedge Clk)
+		if (Clk)
+		begin
+			if (Q)
+				Q = 1'b0;
+			else 
+				Q = 1'b1;
+		end
+	
+endmodule

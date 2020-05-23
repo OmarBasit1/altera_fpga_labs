@@ -1,0 +1,4 @@
+module part3(SW,LEDR)
+	input [0:7]SW,[10]SW;
+		
+endmodule

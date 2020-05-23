@@ -1,0 +1,22 @@
+|part4
+HEX0[0] <= hexOut[0].DB_MAX_OUTPUT_PORT_TYPE
+HEX0[1] <= hexOut[1].DB_MAX_OUTPUT_PORT_TYPE
+HEX0[2] <= hexOut[2].DB_MAX_OUTPUT_PORT_TYPE
+HEX0[3] <= hexOut[3].DB_MAX_OUTPUT_PORT_TYPE
+HEX0[4] <= SW[2].DB_MAX_OUTPUT_PORT_TYPE
+HEX0[5] <= SW[2].DB_MAX_OUTPUT_PORT_TYPE
+HEX0[6] <= hexOut[6].DB_MAX_OUTPUT_PORT_TYPE
+SW[0] => hexOut.IN1
+SW[0] => hexOut[0].IN0
+SW[0] => hexOut.IN1
+SW[1] => hexOut.IN0
+SW[1] => hexOut[6].IN0
+SW[1] => hexOut.IN0
+SW[2] => hexOut.IN1
+SW[2] => hexOut[0].IN1
+SW[2] => hexOut.IN1
+SW[2] => HEX0[4].DATAIN
+SW[2] => hexOut[6].IN1
+SW[2] => HEX0[5].DATAIN
+
+

@@ -1,0 +1,10 @@
+module part7()
+
+
+
+endmodule
+
+module mult_lpm (
+	dataa,
+	datab,
+	result);

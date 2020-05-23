@@ -1,0 +1,78 @@
+module part4(input [2:0]SW,
+				 input [0:0]KEY,
+				 output [6:0]HEX0);
+				 
+	parameter same=2'b0, incre1=2'b1, incre2=2'b2, decre=2'b3;
+	reg [1:0]pres_state, next_state;
+	reg [5:0]count;
+	
+	always@(SW[2] or SW[1])
+	begin
+		if(SW[2]==0 and SW[1]==0)
+			next_state = same;
+		else if (SW[2]==0 and SW[1]==1)
+			next_state = incre1;
+		else if (SW[2]==1 and SW[1]==0)
+			next_state = incre2;
+		else 
+			next_state = decre;
+	end
+	
+	always@(negedge SW[0] or negedge KEY[0])
+	begin
+		if (SW[0] == 0)
+		begin
+			count <= 4'b0;
+			pres_state <= 0;
+		end
+		else
+			pres_state <= next_state;
+	end
+	
+	always@(pres_state)
+	begin
+		if (pres_state == 2'b00)
+			count <= count;
+		else if (pres_state == 2'b01)
+			count <= count+1;
+		else if (pres_state == 2'b10)
+			count <= count+2;
+		else 
+			count <= count-1;
+	end
+	
+	
+	
+endmodule
+
+module display_count(input [5:0]count,
+							output [6:0]HEX0);
+							
+	wire [3:0]mod_ten_count;
+	assign mod_ten_count = count/10;
+	
+	always @(mod_ten_count)
+casex (mod_ten_count)
+	4'b0000 :      	//Hexadecimal 0
+		HEX0 = 7'b1111110;
+	4'b0001 :    		//Hexadecimal 1
+		HEX0 = 7'b0110000  ;
+	4'b0010 :  		// Hexadecimal 2
+		HEX0 = 7'b1101101 ; 
+	4'b0011 : 		// Hexadecimal 3
+		HEX0 = 7'b1111001 ;
+	4'b0100 :		// Hexadecimal 4
+		HEX0 = 7'b0110011 ;
+	4'b0101 :		// Hexadecimal 5
+		HEX0 = 7'b1011011 ;  
+	4'b0110 :		// Hexadecimal 6
+		HEX0 = 7'b1011111 ;
+	4'b0111 :		// Hexadecimal 7
+		HEX0 = 7'b1110000;
+	4'b1000 :     		 //Hexadecimal 8
+		HEX0 = 7'b1111111;
+	4'b1001 :    		//Hexadecimal 9
+		HEX0 = 7'b1111011 ;
+endcase
+
+endmodule

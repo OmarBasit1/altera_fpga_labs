@@ -1,0 +1,35 @@
+module part1();
+
+endmodule
+
+module fullAddr(input a,
+					 input b,
+					 input ci,
+					 output s,
+					 output co);
+					 
+	assign k = a^b;
+	assign s = ci^k;
+	assign co = ~k&b | k&ci;
+	
+endmodule 
+
+module eight_bit_FA(input [7:0]num1,
+						  input [7:0]num2,
+						  input Cin,
+						  output [7:0]numOut,
+						  output Cout);
+
+
+	wire [2:0]tmpCarry;
+	 
+	fullAddr bit0(num1[0],num2[0],Cin,numOut[0],tmpCarry[0]);
+	fullAddr bit1(num1[1],num2[1],tmpCarry[0],numOut[1],tmpCarry[1]);
+	fullAddr bit2(num1[2],num2[2],tmpCarry[1],numOut[2],tmpCarry[2]);
+	fullAddr bit3(num1[3],num2[3],tmpCarry[2],numOut[3],tmpCarry[3]);
+	fullAddr bit4(num1[4],num2[4],tmpCarry[3],numOut[4],tmpCarry[4]);
+	fullAddr bit5(num1[5],num2[5],tmpCarry[4],numOut[5],tmpCarry[5]);
+	fullAddr bit6(num1[6],num2[6],tmpCarry[5],numOut[6],tmpCarry[6]);
+	fullAddr bit7(num1[7],num2[7],tmpCarry[6],numOut[7],Cout);
+	
+endmodule

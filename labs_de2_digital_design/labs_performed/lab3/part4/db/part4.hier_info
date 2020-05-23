@@ -1,0 +1,60 @@
+|part4
+D => D.IN3
+Clk => Clk.IN2
+Qa <= Dlat:D1.port2
+Qb <= Dflipflop:Dpos.port2
+Qc <= Dflipflop:Dneg.port2
+
+
+|part4|Dlat:D1
+D => S_g.IN0
+D => R_g.IN0
+Clk => S_g.IN1
+Clk => R_g.IN1
+Q <= Q.DB_MAX_OUTPUT_PORT_TYPE
+
+
+|part4|Dflipflop:Dpos
+D => D.IN1
+Clk => Clk.IN1
+Q <= Dlat:Slave.port2
+
+
+|part4|Dflipflop:Dpos|Dlat:Master
+D => S_g.IN0
+D => R_g.IN0
+Clk => S_g.IN1
+Clk => R_g.IN1
+Q <= Q.DB_MAX_OUTPUT_PORT_TYPE
+
+
+|part4|Dflipflop:Dpos|Dlat:Slave
+D => S_g.IN0
+D => R_g.IN0
+Clk => S_g.IN1
+Clk => R_g.IN1
+Q <= Q.DB_MAX_OUTPUT_PORT_TYPE
+
+
+|part4|Dflipflop:Dneg
+D => D.IN1
+Clk => Clk.IN1
+Q <= Dlat:Slave.port2
+
+
+|part4|Dflipflop:Dneg|Dlat:Master
+D => S_g.IN0
+D => R_g.IN0
+Clk => S_g.IN1
+Clk => R_g.IN1
+Q <= Q.DB_MAX_OUTPUT_PORT_TYPE
+
+
+|part4|Dflipflop:Dneg|Dlat:Slave
+D => S_g.IN0
+D => R_g.IN0
+Clk => S_g.IN1
+Clk => R_g.IN1
+Q <= Q.DB_MAX_OUTPUT_PORT_TYPE
+
+

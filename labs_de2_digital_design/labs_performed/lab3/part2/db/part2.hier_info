@@ -1,0 +1,15 @@
+|part2
+SW[0] => sw[0].IN1
+SW[1] => sw[1].IN1
+LEDR[0] <= Dlat:D1.port2
+LEDR[1] <= Dlat:D1.port2
+
+
+|part2|Dlat:D1
+D => S_g.IN0
+D => R_g.IN0
+Clk => S_g.IN1
+Clk => R_g.IN1
+Q <= Q.DB_MAX_OUTPUT_PORT_TYPE
+
+

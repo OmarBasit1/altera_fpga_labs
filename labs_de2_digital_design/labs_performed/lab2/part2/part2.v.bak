@@ -1,0 +1,37 @@
+module part2(input [3:0]SW,
+				 output [3:0]m ,z ,[6:0]HEX0 ,[6:0]HEX1);
+	
+	wire [2:0]A;
+	wire [3:0]v;
+	assign v = SW;
+	
+	assign HEX1[0] = ~z;	//
+	assign HEX1[1] = ~z;	//
+	assign HEX1[2] = 1;	//
+	assign HEX1[3] = 1;	//
+	assign HEX1[3] = 1;	//		circuit B
+	assign HEX1[4] = 1;	//
+	assign HEX1[5] = 1;	//
+	assign HEX1[6] = 1;	//
+	
+	assign A[2] = v[2];	//
+	assign A[1] = v[1];	//		circuit A
+	assign A[0] = v[0];	//
+	
+	assign z = v[3]&v[1] | v[3]&v[2]; 	// comparator
+	
+	assign m[3] = (z&v[3])|(~z&0);
+	assign m[2] = (z&v[2])|(~z&A[2]);
+	assign m[1] = (z&v[1])|(~z&A[1]);
+	assign m[0] = (z&v[0])|(~z&A[0]);
+	
+	assign HEX0[0] =  ~(m[3] | m[1] | (m[2] ~^ m[0]));													//
+	assign HEX0[1] =  ~(~m[2] | (m[0] ~^ m[1]));															//
+	assign HEX0[2] =  ~(m[2] | ~m[1] | m[0]);																//	
+	assign HEX0[3] =  ~(~m[2]&~m[0] | m[1]&~m[0] | m[2]&~m[1]&m[0] | ~m[2]&m[1] | m[3]);	//	7 segment decoder
+	assign HEX0[4] =  ~(~m[2]&~m[0] | m[1]&~m[0]);														//
+	assign HEX0[5] =  ~(m[3] | ~m[1]&~m[0] | m[2]&~m[1] | m[2]&~m[0]);							//
+	assign HEX0[6] =  ~(m[3] | m[1]&~m[0] | m[2]^m[1]);												//
+	
+	
+endmodule 

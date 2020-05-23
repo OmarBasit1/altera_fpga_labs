@@ -1,0 +1,331 @@
+module part1(input [3:0]KEY,
+				 output [9:0]LEDR,
+				 output [7:0]LEDG);
+				 
+	wire [15:0]BUS;
+	assign LEDG[7:0] = BUS[7:0];
+	assign LEDR[7:0] = BUS[15:8];
+	processor CPU(KEY[3], KEY[0], KEY[2], KEY[1], LEDR[9], BUS);
+
+endmodule
+
+module memory(input MClock,
+				  input Resetn,
+				  output [15:0]data);
+
+	reg [4:0]count;
+	always@(negedge MClock or negedge Resetn)
+	begin
+		if (!Resetn)
+			count <= 5'b0;
+		else 
+			count <= count + 1'b1;
+	end
+	
+	lpmram ram(count,MClock,16'b0,1'b0,data);	  
+				  
+endmodule
+
+module processor(input MClock,
+					  input Resetn,
+					  input PClock,
+					  input Run, 
+					  output Done, 
+					  output [15:0]Bus);
+	
+	wire [15:0]DIN;
+	memory M(MClock, Resetn, DIN);
+	
+	wire [15:0]busloop;
+	assign Bus = busloop;
+	
+	wire [15:0]R_d0 = busloop;		//input
+	wire [15:0]R_d1 = busloop;
+	wire [15:0]R_d2 = busloop;
+	wire [15:0]R_d3 = busloop;
+	wire [15:0]R_d4 = busloop;
+	wire [15:0]R_d5 = busloop;
+	wire [15:0]R_d6 = busloop;
+	wire [15:0]R_d7 = busloop;
+	wire [15:0]A = busloop;
+	wire [15:0]G;
+	wire [15:0]A_reg,G_reg;
+	wire [15:0]R_q0;					//output
+	wire [15:0]R_q1;
+	wire [15:0]R_q2;
+	wire [15:0]R_q3;
+	wire [15:0]R_q4;
+	wire [15:0]R_q5;
+	wire [15:0]R_q6;
+	wire [15:0]R_q7;
+	wire [7:0]R_in, R_out;
+	wire [8:0]IR;
+	wire A_in,G_in,G_out,Din_out, Add_Sub, IR_in;
+	
+	
+	regn r0(R_d0, R_in[0], PClock,R_q0);
+	regn r1(R_d1, R_in[1], PClock,R_q1);
+	regn r2(R_d2, R_in[2], PClock,R_q2);
+	regn r3(R_d3, R_in[3], PClock,R_q3);
+	regn r4(R_d4, R_in[4], PClock,R_q4);
+	regn r5(R_d5, R_in[5], PClock,R_q5);
+	regn r6(R_d6, R_in[6], PClock,R_q6);
+	regn r7(R_d7, R_in[7], PClock,R_q7);
+	
+	
+	regn a(A, A_in, PClock,A_reg);
+	regn g(G, G_in, PClock,G_reg);
+	regn #(9) ir(DIN[8:0], IR_in, Clock,IR);
+	
+	AddSub adder(A_reg, busloop, Add_Sub, G);
+	multiplexer mux(DIN, R_q0, R_q1, R_q2, R_q3, R_q4, R_q5, R_q6, R_q7,
+													G_reg, R_out, G_out, Din_out, busloop);
+	
+	control_unit CU(PClock, Run, Resetn, IR, R_out, G_out, Din_out,
+											R_in, A_in, G_in, Add_Sub, IR_in, Done);
+	
+endmodule
+
+module control_unit(input clock,
+						  input run,
+						  input resetn,
+						  input [8:0]IR,
+						  output reg [7:0]Rout,
+						  output reg Gout,
+						  output reg DINout,
+						  output reg [7:0]Rin,
+						  output reg Ain,
+						  output reg Gin,
+						  output reg AddSub,
+						  output reg IRin,
+						  output reg Done);
+			
+	parameter T0 = 2'b0, T1 = 2'd1, T2 = 2'd2, T3 = 2'd3;
+	parameter nop = 3'b0, mv = 3'b001, mvi = 3'b010, add = 3'b011, sub = 3'b100;
+	reg [1:0]pres_state, next_state;
+	
+	wire [2:0]instruction,Rx,Ry;
+	assign instruction = IR[8:6];
+	
+	wire [7:0]Xreg, Yreg;
+	
+	dec3to8 decX (IR[5:3], 1'b1, Xreg);
+	dec3to8 decY (IR[2:0], 1'b1, Yreg);
+	
+	
+	always@(IR or pres_state)
+	begin
+		case(pres_state)
+			T0:
+			begin
+				next_state = T1;
+				IRin = 1'b1;
+			end
+			T1:
+			begin
+				IRin = 1'b0;
+				if(instruction < add)
+					next_state = T0;
+				else 
+					next_state = T2;
+			end
+			T2:
+				next_state = T3;
+			T3:
+				next_state = T0;
+		endcase
+	end
+	
+	always@(negedge clock or negedge resetn or negedge run)
+	begin
+		if(resetn == 0)
+			pres_state <= T0;
+		else if (run == 0)
+			pres_state <= pres_state;
+		else
+			pres_state <= next_state;			
+	end
+	
+	always@(pres_state)
+	begin
+		case(pres_state)
+			T0:
+			begin
+				Rin = 8'b0;
+				AddSub = 1'b0;
+				Gin = 1'b0;
+				Ain = 1'b0;
+				Rout = 8'b0;
+				Gout = 1'b0;
+				DINout = 1'b0;
+				Done = 1'b0;
+			end
+			T1:
+			begin
+					Rin = 8'b0;
+					AddSub = 1'b0;
+					Gin = 1'b0;
+					Ain = 1'b0;
+					Rout = 8'b0;
+					Gout = 1'b0;
+					DINout = 1'b0;
+					Done = 1'b0;
+					if (instruction == mv)
+					begin
+						Rin = Xreg;
+						Rout = Yreg;
+						Done = 1'b1;
+					end
+					else if (instruction == mvi)
+					begin
+						Rin = Xreg;
+						DINout = 1'b1;
+						Done = 1'b1;
+					end
+					else if (instruction == add)
+					begin
+						Ain = 1'b1;
+						Rout = Xreg;
+					end
+					else if (instruction == sub)
+					begin
+						Ain = 1'b1;
+						Rout = Xreg;
+					end
+				end
+			T2:
+			begin
+				Rin = 8'b0;
+				AddSub = 1'b0;
+				Gin = 1'b0;
+				Ain = 1'b0;
+				Rout = 8'b0;
+				Gout = 1'b0;
+				DINout = 1'b0;
+				Done = 1'b0;
+				if (instruction == add)
+				begin
+					Rout = Yreg;
+					Gin = 1'b1;
+				end
+				else if (instruction == sub)
+				begin
+					Rout = Yreg;
+					Gin = 1'b1;
+					AddSub = 1'b1;
+				end
+			end
+			T3:
+			begin
+				Rin = 8'b0;
+				AddSub = 1'b0;
+				Gin = 1'b0;
+				Ain = 1'b0;
+				Rout = 8'b0;
+				Gout = 1'b0;
+				DINout = 1'b0;
+				Done = 1'b0;
+				if (instruction == add | instruction == sub)
+				begin
+					Gout =1'b1;
+					Rin = Xreg;
+					Done = 1'b1;
+				end
+			end
+		endcase
+	end
+			
+endmodule
+
+module multiplexer(input [15:0]Din,
+						 input [15:0]R0,
+						 input [15:0]R1,
+						 input [15:0]R2,
+						 input [15:0]R3,
+						 input [15:0]R4,
+						 input [15:0]R5,
+						 input [15:0]R6,
+						 input [15:0]R7,
+						 input [15:0]G,
+						 input [7:0]R_out,
+						 input G_out,
+						 input Din_out,
+						 output reg [15:0]DBUS);
+
+	always@(*)
+	begin
+		if (Din_out == 1)
+			DBUS = Din;
+		else if(G_out == 1)
+			DBUS = G;
+		else if (R_out[0] == 1)
+			DBUS = R0;
+		else if (R_out[1] == 1)
+			DBUS = R1;
+		else if (R_out[2] == 1)
+			DBUS = R2;
+		else if (R_out[3] == 1)
+			DBUS = R3;
+		else if (R_out[4] == 1)
+			DBUS = R4;
+		else if (R_out[5] == 1)
+			DBUS = R5;
+		else if (R_out[6] == 1)
+			DBUS = R6;
+		else if (R_out[7] == 1)
+			DBUS = R7;
+		else 
+			DBUS = 16'b0;
+		end
+endmodule
+
+module AddSub(input [15:0]A,
+				  input [15:0]DBUS,
+				  input sub,
+				  output reg [15:0]G);
+		
+	always@(*)
+	begin
+		if (sub == 1)
+			G = A - DBUS;
+		else
+			G = A + DBUS;
+	end
+		
+endmodule
+
+module regn(R, Rin, Clock, Q);
+
+	parameter n = 16;
+	input [n-1:0] R;
+	input Rin, Clock;
+	output reg [n-1:0] Q;
+	
+	always @(negedge Clock)
+		if (Rin)
+	Q <= R;
+	
+endmodule
+
+module dec3to8(input [2:0]W,
+					input En,
+					output reg [7:0]Y);
+
+	always @(W or En)
+	begin
+		if (En == 1)
+			case (W)
+				3'b000: Y = 8'b00000001;
+				3'b001: Y = 8'b00000010;
+				3'b010: Y = 8'b00000100;
+				3'b011: Y = 8'b00001000;
+				3'b100: Y = 8'b00010000;
+				3'b101: Y = 8'b00100000;
+				3'b110: Y = 8'b01000000;
+				3'b111: Y = 8'b10000000;
+			endcase
+		else
+			Y = 8'b00000000;
+	end
+	
+endmodule

@@ -1,0 +1,7 @@
+module part1(input [0:0]KEY,
+				 input [0:0]SW,
+				 output [0:0]LEDG);
+
+				 
+				 
+endmodule

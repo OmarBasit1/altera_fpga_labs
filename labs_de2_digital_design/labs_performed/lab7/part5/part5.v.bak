@@ -1,0 +1,85 @@
+module part5(input [0:0]SW,
+				 input [0:0]KEY,
+				 output [6:0]HEX0,
+				 output [6:0]HEX1,
+				 output [6:0]HEX2,
+				 output [6:0]HEX3);
+	
+	parameter H=3'd0, E=3'd1, L1=3'd2, L2=3'd3, O=3'd4, space=3'd5, repe=3'd6;
+	reg [2:0] pres_state, next_state;
+	wire [2:0] in, tmp0, tmp1, tmp2, tmp3, tmp4, tmp5;
+	
+	
+	always@(pres_state)
+	begin
+		case(pres_state)
+			H: 		next_state = E;
+			E: 		next_state = L1;
+			L1:		next_state = L2;
+			L2:		next_state = O;
+			O:			next_state = space;
+			space:	next_state = repe;
+			repe: 	next_state = repe;
+			default: next_state = H
+		endcase
+	end
+	
+	always@(negedge SW[0] or negedge KEY[0])
+	begin
+		if (SW[0] == 0)
+			pres_state <= 0;
+		else 
+			pres_state <= next_state;
+	end
+	
+	registers_seven zero(in, KEY[0], SW[0], tmp0);
+	registers_seven one(tmp0, KEY[0], SW[0], tmp1);
+	registers_seven two(tmp1, KEY[0], SW[0], tmp2);
+	registers_seven three(tmp2, KEY[0], SW[0], tmp3);
+	registers_seven four(tmp3, KEY[0], SW[0], tmp4);
+	registers_seven five(tmp4, KEY[0], SW[0], tmp5);
+	
+	
+	always@(pres_state)
+	begin
+		case(pres_state)
+			H:		in = 3'b000;
+			E: 	in = 3'b001;
+			L1:	in = 3'b010;
+			L2:	in = 3'b010;
+			O:		in = 3'b011;
+			space:in = 3'b111;
+			repe: in = tmp5;
+		endcase
+	end
+	
+endmodule
+
+module registers_seven(input [2:0]in,
+							  input clock,
+							  input reset,
+							  output reg [2:0]out);
+
+	always@(negedge clock or negedge reset)
+	begin
+		if (reset == 0)
+			out <= 3'b0;
+		else
+			out <= in;
+	end
+							  
+endmodule
+
+module display(input [2:0]select,
+					output [6:0]hex);
+
+	always@(*)
+	case(select)
+		3'b000:	hex = 7'b0001001;		//H
+		3'b001:	hex = 7'b0000110;		//E
+		3'b010:	hex = 7'b1000111;		//L
+		3'b011:	hex = 7'b1000000;		//O
+		default: hex = 7'b1111111;		// [space]
+	endcase
+					
+endmodule

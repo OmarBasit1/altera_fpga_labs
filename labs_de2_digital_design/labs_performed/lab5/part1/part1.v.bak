@@ -1,0 +1,8 @@
+module part1();
+	
+endmodule 
+
+module BCDcounter(input [8:0]num,
+						output reg [3:0]unit,ten,hundred);
+						
+endmodule 

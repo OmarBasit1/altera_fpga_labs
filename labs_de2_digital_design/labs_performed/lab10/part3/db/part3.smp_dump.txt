@@ -1,0 +1,9 @@
+
+State Machine - |part3|cpu:mycpu|processor:proc|control_unit:CU|pres_state
+Name pres_state.T5 pres_state.T4 pres_state.T3 pres_state.T2 pres_state.T1 pres_state.T0 
+pres_state.T0 0 0 0 0 0 0 
+pres_state.T1 0 0 0 0 1 1 
+pres_state.T2 0 0 0 1 0 1 
+pres_state.T3 0 0 1 0 0 1 
+pres_state.T4 0 1 0 0 0 1 
+pres_state.T5 1 0 0 0 0 1 

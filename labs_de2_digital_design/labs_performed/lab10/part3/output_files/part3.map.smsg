@@ -1,0 +1,4 @@
+Info (10281): Verilog HDL Declaration information at part3.v(90): object "A" differs only in case from object "a" in the same scope
+Info (10281): Verilog HDL Declaration information at part3.v(91): object "G" differs only in case from object "g" in the same scope
+Info (10281): Verilog HDL Declaration information at part3.v(102): object "IR" differs only in case from object "ir" in the same scope
+Info (10281): Verilog HDL Declaration information at part3.v(73): object "ADDR" differs only in case from object "addr" in the same scope

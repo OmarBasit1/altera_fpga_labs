@@ -1,0 +1,21 @@
+#! /usr/bin/vvp
+:ivl_version "10.1 (stable)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "system";
+:vpi_module "vhdl_sys";
+:vpi_module "v2005_math";
+:vpi_module "va_math";
+S_0x55589b6a5d40 .scope module, "part1" "part1" 2 1;
+ .timescale 0 0;
+    .port_info 0 /INPUT 18 "SW"
+    .port_info 1 /OUTPUT 18 "LEDR"
+o0x7f87ee197048 .functor BUFZ 18, C4<zzzzzzzzzzzzzzzzzz>; HiZ drive
+L_0x55589b6c5fc0 .functor BUFZ 18, o0x7f87ee197048, C4<000000000000000000>, C4<000000000000000000>, C4<000000000000000000>;
+v0x55589b66fa90_0 .net "LEDR", 17 0, L_0x55589b6c5fc0;  1 drivers
+v0x55589b6c5e80_0 .net "SW", 17 0, o0x7f87ee197048;  0 drivers
+# The file index is used to find the file name in the following table.
+:file_names 3;
+    "N/A";
+    "<interactive>";
+    "part1.v";

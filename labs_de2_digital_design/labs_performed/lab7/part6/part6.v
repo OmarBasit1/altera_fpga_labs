@@ -1,0 +1,127 @@
+module part6(input [0:0]SW,
+				 input CLOCK_50,
+				 output [6:0]HEX0,
+				 output [6:0]HEX1,
+				 output [6:0]HEX2,
+				 output [6:0]HEX3,
+				 output [0:0]LEDR);
+	
+	parameter H=3'd0, E=3'd1, L1=3'd2, L2=3'd3, O=3'd4, space=3'd5, repe=3'd6;
+	reg [2:0] pres_state, next_state;
+	wire [2:0] tmp0, tmp1, tmp2, tmp3, tmp4, tmp5;
+	reg [2:0] in;
+	wire enable;
+	
+	assign LEDR[0] = enable; 
+	
+	gen_enable gen(CLOCK_50, enable);
+	
+	always@(pres_state or enable)
+	begin
+		case(pres_state)
+			H: 		if(enable)	next_state = E;
+						else			next_state = H;
+			E: 		if(enable)	next_state = L1;
+						else			next_state = E;
+			L1:		if(enable)	next_state = L2;
+						else			next_state = L1;
+			L2:		if(enable)	next_state = O;
+						else			next_state = L2;
+			O:			if(enable)	next_state = space;
+						else			next_state = O;
+			space:	if(enable)	next_state = repe;
+						else			next_state = space;
+			repe: 	next_state = repe;
+			default: next_state = H;
+		endcase
+	end
+	
+	always@(negedge SW[0] or negedge CLOCK_50)
+	begin
+		if (SW[0] == 0)
+			pres_state <= 0;
+		else 
+			pres_state <= next_state;
+	end
+	
+	registers_seven zero(in, CLOCK_50, SW[0], enable, tmp0);
+	registers_seven one(tmp0, CLOCK_50, SW[0], enable, tmp1);
+	registers_seven two(tmp1, CLOCK_50, SW[0], enable, tmp2);
+	registers_seven three(tmp2, CLOCK_50, SW[0], enable, tmp3);
+	registers_seven four(tmp3, CLOCK_50, SW[0], enable, tmp4);
+	registers_seven five(tmp4, CLOCK_50, SW[0], enable, tmp5);
+	
+	
+	always@(pres_state)
+	begin
+		case(pres_state)
+			H:		in = 3'b000;
+			E: 	in = 3'b001;
+			L1:	in = 3'b010;
+			L2:	in = 3'b010;
+			O:		in = 3'b011;
+			space:in = 3'b111;
+			repe: in = tmp5;
+		endcase
+	end
+	
+	display disp0(tmp0, HEX0);
+	display disp1(tmp1, HEX1);
+	display disp2(tmp2, HEX2);
+	display disp3(tmp3, HEX3);
+	
+endmodule
+
+module registers_seven(input [2:0]in,
+							  input clock,
+							  input reset,
+							  input enable,
+							  output reg [2:0]out);
+
+	always@(negedge clock or negedge reset)
+	begin
+		if (reset == 0)
+			out <= 3'b111;
+		else
+			if(enable == 1)
+			out <= in;
+	end
+							  
+endmodule
+
+module display(input [2:0]select,
+					output reg [6:0]hex);
+
+	always@(*)
+	case(select)
+		3'b000:	hex = 7'b0001001;		//H
+		3'b001:	hex = 7'b0000110;		//E
+		3'b010:	hex = 7'b1000111;		//L
+		3'b011:	hex = 7'b1000000;		//O
+		default: hex = 7'b1111111;		// [space]
+	endcase
+					
+endmodule
+
+module gen_enable(input clk,
+						output reg enable);
+
+	reg [26:0]count;
+	
+	always@(posedge clk)
+	begin
+		if (clk == 1)
+			count <= count + 1;
+		if (count == 26'd50000000)
+			count <= 0;
+	end
+	
+	always@(posedge clk)
+	begin
+		if (count == 26'd0 )
+			enable <= 1;
+		else
+			enable <= 0;
+	end
+						
+endmodule

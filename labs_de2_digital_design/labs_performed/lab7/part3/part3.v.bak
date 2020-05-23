@@ -1,0 +1,30 @@
+module part3();
+
+
+
+endmodule
+
+module shift_reg_4(input clock,
+						 input reset,
+						 input in,
+						 output reg out,
+						 output all_one,
+						 output all_zero);
+						 
+		reg [2:0]inside;
+
+		always@(negedge clock or negedge reset)
+		begin
+			if (reset == 0)
+				inside <= 0;
+			else
+				inside[0] <= in;
+				inside[1] <= inside[0];
+				inside[2] <= inside[1];
+				out		 <= inside[2];
+ 		end
+		
+		assign all_one = inside[0] & inside[1] & inside[2] & inside[3];
+		assign all_zero = inside[0] | inside[1] | inside[2] | inside[3];
+		
+endmodule
